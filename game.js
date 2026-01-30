@@ -25,32 +25,25 @@ function draw() {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Comida (círculo)
-  ctx.fillStyle = "#ef4444";
+  // Comida
+  ctx.fillStyle = "red";
   ctx.beginPath();
   ctx.arc(food.x + 5, food.y + 5, 5, 0, Math.PI * 2);
   ctx.fill();
 
   // Serpiente
   snake.forEach((part, index) => {
-    ctx.fillStyle = index === 0 ? "#22c55e" : "#4ade80";
+    ctx.fillStyle = index === 0 ? "#00ff99" : "#00cc66";
     ctx.fillRect(part.x, part.y, 10, 10);
   });
 
   const head = { x: snake[0].x + dx, y: snake[0].y + dy };
   snake.unshift(head);
 
-  // Comer
   if (head.x === food.x && head.y === food.y) {
     score++;
     scoreEl.textContent = score;
     food = randomFood();
-
-    // Aumentar dificultad
-    if (speed > 50) {
-      speed -= 5;
-      restartGame();
-    }
   } else {
     snake.pop();
   }
@@ -63,11 +56,12 @@ function draw() {
     head.y >= canvas.height ||
     snake.slice(1).some(p => p.x === head.x && p.y === head.y)
   ) {
-    gameOver();
+    alert("Game Over");
+    resetGame();
   }
 }
 
-/* ---------- CONTROLES ---------- */
+/* ---------- DIRECCIÓN ---------- */
 function changeDirection(direction) {
   if (direction === "up" && dy === 0) {
     dx = 0; dy = -10;
@@ -83,6 +77,11 @@ function changeDirection(direction) {
   }
 }
 
+/* 🔑 HACER LAS FUNCIONES GLOBALES */
+window.changeDirection = changeDirection;
+window.togglePause = () => paused = !paused;
+
+/* ---------- TECLADO ---------- */
 document.addEventListener("keydown", e => {
   if (e.key === "ArrowUp") changeDirection("up");
   if (e.key === "ArrowDown") changeDirection("down");
@@ -90,30 +89,13 @@ document.addEventListener("keydown", e => {
   if (e.key === "ArrowRight") changeDirection("right");
 });
 
-/* ---------- CONTROL DE JUEGO ---------- */
-function restartGame() {
-  clearInterval(gameInterval);
-  gameInterval = setInterval(draw, speed);
-}
-
-function gameOver() {
-  alert(`💀 Game Over\nPuntaje: ${score}`);
-  resetGame();
-}
-
+/* ---------- CONTROL ---------- */
 function resetGame() {
   snake = [{ x: 150, y: 150 }];
   dx = 10;
   dy = 0;
   score = 0;
-  speed = 120;
   scoreEl.textContent = score;
-  restartGame();
 }
 
-function togglePause() {
-  paused = !paused;
-}
-
-/* ---------- INICIO ---------- */
-restartGame();
+gameInterval = setInterval(draw, speed);
